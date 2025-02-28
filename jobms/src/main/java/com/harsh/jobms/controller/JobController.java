@@ -53,9 +53,9 @@ public class JobController {
 
 	@GetMapping("/jobs/id/{id}")
 	public ResponseEntity<Pair> findJobById(@PathVariable int id) {
-		Job job = jobService.findJobById(id);
+		JobCompanyDTO job = jobService.findJobById(id);
 		if (job == null) {
-			return new ResponseEntity<>(new Pair("fail", "Job Id not found !!"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new Pair("fail", "Job not found !!"), HttpStatus.NOT_FOUND);
 
 		}
 		return new ResponseEntity<>(new Pair("success", job), HttpStatus.OK);
@@ -63,7 +63,7 @@ public class JobController {
 
 	@GetMapping("/jobs/find")
 	public ResponseEntity<Pair> findJobById2(@RequestParam(value = "id", required = true) String id) {
-		Job job = jobService.findJobById(Integer.parseInt(id));
+		JobCompanyDTO job = jobService.findJobById(Integer.parseInt(id));
 		if (job == null) {
 			return new ResponseEntity<>(new Pair("fail", "Job Id not found !!"), HttpStatus.NOT_FOUND);
 

@@ -79,14 +79,15 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public Job findJobById(Integer id) {
+	public JobCompanyDTO findJobById(Integer id) {
 		Job job = jobRepo.findById(id).orElse(null);
-//		Job job = jobs.stream().filter(i -> i.getId().equals(id)).findFirst().orElse(null);
-		if (job == null) {
-			return null;
-		} else {
-			return job;
+		if (job != null) {
+			RestTemplate restTemplate = new RestTemplate();
+			JobCompanyDTO jobCompanyDTO = convertToDTO(job, restTemplate);
+			return jobCompanyDTO;
 		}
+		return null;
+
 	}
 
 	@Override
@@ -113,7 +114,7 @@ public class JobServiceImpl implements JobService {
 			return null;
 		} else {
 //			Job fetchJob = jobs.stream().filter(i -> i.getId().equals(id)).findFirst().orElse(null);
-			Job fetchJob = findJobById(id);
+			Job fetchJob = jobRepo.findById(id).orElse(null);
 			if (fetchJob != null) {
 				fetchJob.setDescription(job.getDescription());
 				fetchJob.setTitle(job.getTitle());
@@ -133,7 +134,7 @@ public class JobServiceImpl implements JobService {
 	@Override
 	public Job deleteJob(Integer id) {
 //		Job job = jobs.stream().filter(i -> i.getId().equals(id)).findFirst().orElse(null);
-		Job job = findJobById(id);
+		Job job = jobRepo.findById(id).orElse(null);
 		if (job != null) {
 			jobRepo.delete(job);
 		}

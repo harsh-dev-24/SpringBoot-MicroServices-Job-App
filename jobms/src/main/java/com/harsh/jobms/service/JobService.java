@@ -9,7 +9,7 @@ public interface JobService {
 
 	List<JobCompanyDTO> findAllJobs();
 
-	Job findJobById(Integer id);
+	JobCompanyDTO findJobById(Integer id);
 
 	boolean createJob(Job job);
 
