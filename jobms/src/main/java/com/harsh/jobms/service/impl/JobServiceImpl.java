@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import com.harsh.jobms.dto.JobCompanyDTO;
 import com.harsh.jobms.dto.Pair;
 import com.harsh.jobms.external.Company;
+import com.harsh.jobms.mapper.JobMapper;
 import com.harsh.jobms.model.Job;
 import com.harsh.jobms.repository.JobRepository;
 import com.harsh.jobms.service.JobService;
@@ -19,8 +20,7 @@ import com.harsh.jobms.service.JobService;
 public class JobServiceImpl implements JobService {
 
 	private JobRepository jobRepo;
-	
-	
+
 	// Load Balanced rest template
 	@Autowired
 	private RestTemplate restTemplate;
@@ -76,11 +76,12 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private JobCompanyDTO convertToDTO(Job job, RestTemplate template) {
-		JobCompanyDTO jobCompanyDTO = new JobCompanyDTO();
-		jobCompanyDTO.setJob(job);
+
 //		Company company = template.getForObject("http://localhost:8081/companies/id/" + job.getCompanyId(),Company.class);
-		Company company = template.getForObject("http://COMPANY-SERVICE:8081/companies/id/" + job.getCompanyId(),Company.class);
-		jobCompanyDTO.setCompany(company);
+		Company company = template.getForObject("http://COMPANY-SERVICE:8081/companies/id/" + job.getCompanyId(),
+				Company.class);
+
+		JobCompanyDTO jobCompanyDTO = JobMapper.mapToJobCompanyDTO(job, company);
 		return jobCompanyDTO;
 	}
 
