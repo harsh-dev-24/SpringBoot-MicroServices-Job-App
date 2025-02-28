@@ -2,11 +2,12 @@ package com.harsh.jobms.service;
 
 import java.util.List;
 
+import com.harsh.jobms.dto.JobCompanyDTO;
 import com.harsh.jobms.model.Job;
 
 public interface JobService {
 
-	List<Job> findAllJobs();
+	List<JobCompanyDTO> findAllJobs();
 
 	Job findJobById(Integer id);
 

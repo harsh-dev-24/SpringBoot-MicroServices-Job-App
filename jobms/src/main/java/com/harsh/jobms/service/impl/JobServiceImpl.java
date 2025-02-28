@@ -2,9 +2,14 @@ package com.harsh.jobms.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.harsh.jobms.dto.JobCompanyDTO;
+import com.harsh.jobms.dto.Pair;
+import com.harsh.jobms.external.Company;
 import com.harsh.jobms.model.Job;
 import com.harsh.jobms.repository.JobRepository;
 import com.harsh.jobms.service.JobService;
@@ -43,9 +48,34 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public List<Job> findAllJobs() {
+	public List<JobCompanyDTO> findAllJobs() {
+
+		List<Job> jobs = jobRepo.findAll();
+//		List<JobCompanyDTO> jobCompanyDTOs = new ArrayList<JobCompanyDTO>();
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		return jobs.stream().map(j -> this.convertToDTO(j, restTemplate)).collect(Collectors.toList());
+
+		// Example usage of Rest Template
+		/*
+		 * RestTemplate restTemplate = new RestTemplate(); Company company =
+		 * restTemplate.getForObject("http://localhost:8081/companies/id/1",
+		 * Company.class); System.out.println("COMPANY :: " + company);
+		 */
+
 //		return jobs;
-		return jobRepo.findAll();
+//		return jobRepo.findAll();
+
+	}
+
+	private JobCompanyDTO convertToDTO(Job job, RestTemplate template) {
+		JobCompanyDTO jobCompanyDTO = new JobCompanyDTO();
+		jobCompanyDTO.setJob(job);
+		Company company = template.getForObject("http://localhost:8081/companies/id/" + job.getCompanyId(),
+				Company.class);
+		jobCompanyDTO.setCompany(company);
+		return jobCompanyDTO;
 	}
 
 	@Override

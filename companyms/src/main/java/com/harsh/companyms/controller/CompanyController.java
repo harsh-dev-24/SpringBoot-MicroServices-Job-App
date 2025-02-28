@@ -33,7 +33,8 @@ public class CompanyController {
 			return new ResponseEntity<>(new Pair("succcess", "Companes loaded successfully !!"), HttpStatus.CREATED);
 
 		}
-		return new ResponseEntity<>(new Pair("fail", "Error occured while loading companies!"), HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(new Pair("fail", "Error occured while loading companies!"),
+				HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@GetMapping("/companies")
@@ -49,13 +50,13 @@ public class CompanyController {
 	}
 
 	@GetMapping("/companies/id/{id}")
-	public ResponseEntity<Pair> findJobById(@PathVariable int id) {
+	public ResponseEntity findJobById(@PathVariable int id) {
 		Company company = companyService.getCompanyById(id);
 		if (company == null) {
 			return new ResponseEntity<>(new Pair("fail", "Company Id not found !!"), HttpStatus.NOT_FOUND);
 
 		}
-		return new ResponseEntity<>(new Pair("success", company), HttpStatus.OK);
+		return new ResponseEntity<>(company, HttpStatus.OK);
 	}
 
 	@GetMapping("/companies/find")

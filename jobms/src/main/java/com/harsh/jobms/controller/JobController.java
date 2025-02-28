@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.harsh.jobms.dto.JobCompanyDTO;
 import com.harsh.jobms.dto.Pair;
 import com.harsh.jobms.model.Job;
 import com.harsh.jobms.service.JobService;
@@ -43,9 +44,7 @@ public class JobController {
 
 	@GetMapping("/jobs")
 	public ResponseEntity<Pair> findAllJobs() {
-		
-		
-		List<Job> allJobs = jobService.findAllJobs();
+		List<JobCompanyDTO> allJobs = jobService.findAllJobs();
 		if (allJobs.size() == 0) {
 			return new ResponseEntity<Pair>(new Pair("success", "No jobs found!!"), HttpStatus.OK);
 		}
