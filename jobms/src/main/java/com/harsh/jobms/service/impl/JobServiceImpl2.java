@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import com.harsh.jobms.clients.CompanyClient;
+import com.harsh.jobms.clients.ReviewClient;
 import com.harsh.jobms.dto.JobCompanyReviewDTO;
 import com.harsh.jobms.external.Company;
 import com.harsh.jobms.external.Review;
@@ -20,20 +17,21 @@ import com.harsh.jobms.model.Job;
 import com.harsh.jobms.repository.JobRepository;
 import com.harsh.jobms.service.JobService;
 
-
-// Used RestTemplate for inter-service communication
+//used open feign client for interservice communication
 @Service
-//@Primary
-public class JobServiceImpl implements JobService {
+@Primary
+public class JobServiceImpl2 implements JobService {
 
 	private JobRepository jobRepo;
 
-	// Load Balanced rest template
-	@Autowired
-	private RestTemplate restTemplate;
+	private CompanyClient companyClient;
 
-	public JobServiceImpl(JobRepository jobRepository) {
+	private ReviewClient reviewClient;
+
+	public JobServiceImpl2(JobRepository jobRepository, CompanyClient companyClient, ReviewClient reviewClient) {
 		this.jobRepo = jobRepository;
+		this.companyClient = companyClient;
+		this.reviewClient = reviewClient;
 	}
 
 	private List<Job> jobs = new ArrayList<>(List.of(
@@ -62,50 +60,23 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public List<JobCompanyReviewDTO> findAllJobs() {
-
 		List<Job> jobs = jobRepo.findAll();
-//		List<JobCompanyDTO> jobCompanyDTOs = new ArrayList<JobCompanyDTO>();
-
-//		RestTemplate restTemplate = new RestTemplate();
-
-		return jobs.stream().map(j -> this.convertToDTO(j, restTemplate)).collect(Collectors.toList());
-
-		// Example usage of Rest Template
-		/*
-		 * RestTemplate restTemplate = new RestTemplate(); Company company =
-		 * restTemplate.getForObject("http://localhost:8081/companies/id/1",
-		 * Company.class); System.out.println("COMPANY :: " + company);
-		 */
-
-//		return jobs;
-//		return jobRepo.findAll();
-
+		return jobs.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
-	private JobCompanyReviewDTO convertToDTO(Job job, RestTemplate template) {
-		
-		
-
-//		Company company = template.getForObject("http://localhost:8081/companies/id/" + job.getCompanyId(),Company.class);
-		Company company = template.getForObject("http://COMPANY-SERVICE:8081/companies/id/" + job.getCompanyId(),
-				Company.class);
-
-		ResponseEntity<List<Review>> reviewResponse = restTemplate.exchange("http://REVIEW-SERVICE:8083/reviews?companyId=" + job.getCompanyId(), HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Review>>() {
-				});
-		
-		List<Review> reviews = reviewResponse.getBody();
-
-		JobCompanyReviewDTO jobCompanyDTO = JobMapper.mapToJobCompanyDTO(job, company, reviews);
-		return jobCompanyDTO;
+	// Implementing FeignClient to communicate with company service
+	private JobCompanyReviewDTO convertToDTO(Job job) {
+		Company company = companyClient.getCompany(job.getCompanyId());
+		List<Review> reviews = reviewClient.getReviews(job.getCompanyId());
+		JobCompanyReviewDTO jobCompanyReviewDTO = JobMapper.mapToJobCompanyDTO(job, company, reviews);
+		return jobCompanyReviewDTO;
 	}
 
 	@Override
 	public JobCompanyReviewDTO findJobById(Integer id) {
 		Job job = jobRepo.findById(id).orElse(null);
 		if (job != null) {
-//			RestTemplate restTemplate = new RestTemplate();
-			JobCompanyReviewDTO jobCompanyDTO = convertToDTO(job, restTemplate);
+			JobCompanyReviewDTO jobCompanyDTO = convertToDTO(job);
 			return jobCompanyDTO;
 		}
 		return null;
@@ -114,13 +85,6 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public boolean createJob(Job job) {
-//		if (job != null) {
-//			job.setId(nextId++);
-//			jobs.add(job);
-//			return true;
-//		}
-//		return false;
-
 		if (job != null) {
 			jobRepo.save(job);
 			return true;
@@ -135,7 +99,6 @@ public class JobServiceImpl implements JobService {
 		if (job == null) {
 			return null;
 		} else {
-//			Job fetchJob = jobs.stream().filter(i -> i.getId().equals(id)).findFirst().orElse(null);
 			Job fetchJob = jobRepo.findById(id).orElse(null);
 			if (fetchJob != null) {
 				fetchJob.setDescription(job.getDescription());
@@ -156,7 +119,6 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public Job deleteJob(Integer id) {
-//		Job job = jobs.stream().filter(i -> i.getId().equals(id)).findFirst().orElse(null);
 		Job job = jobRepo.findById(id).orElse(null);
 		if (job != null) {
 			jobRepo.delete(job);
