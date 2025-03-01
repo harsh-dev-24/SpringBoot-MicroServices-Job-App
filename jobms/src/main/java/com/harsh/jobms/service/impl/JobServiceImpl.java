@@ -5,16 +5,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.harsh.jobms.dto.JobCompanyDTO;
-import com.harsh.jobms.dto.Pair;
+import com.harsh.jobms.dto.JobCompanyReviewDTO;
 import com.harsh.jobms.external.Company;
+import com.harsh.jobms.external.Review;
 import com.harsh.jobms.mapper.JobMapper;
 import com.harsh.jobms.model.Job;
 import com.harsh.jobms.repository.JobRepository;
 import com.harsh.jobms.service.JobService;
+
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -54,7 +58,7 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public List<JobCompanyDTO> findAllJobs() {
+	public List<JobCompanyReviewDTO> findAllJobs() {
 
 		List<Job> jobs = jobRepo.findAll();
 //		List<JobCompanyDTO> jobCompanyDTOs = new ArrayList<JobCompanyDTO>();
@@ -75,22 +79,30 @@ public class JobServiceImpl implements JobService {
 
 	}
 
-	private JobCompanyDTO convertToDTO(Job job, RestTemplate template) {
+	private JobCompanyReviewDTO convertToDTO(Job job, RestTemplate template) {
+		
+		
 
 //		Company company = template.getForObject("http://localhost:8081/companies/id/" + job.getCompanyId(),Company.class);
 		Company company = template.getForObject("http://COMPANY-SERVICE:8081/companies/id/" + job.getCompanyId(),
 				Company.class);
 
-		JobCompanyDTO jobCompanyDTO = JobMapper.mapToJobCompanyDTO(job, company);
+		ResponseEntity<List<Review>> reviewResponse = restTemplate.exchange("http://REVIEW-SERVICE:8083/reviews?companyId=" + job.getCompanyId(), HttpMethod.GET,
+				null, new ParameterizedTypeReference<List<Review>>() {
+				});
+		
+		List<Review> reviews = reviewResponse.getBody();
+
+		JobCompanyReviewDTO jobCompanyDTO = JobMapper.mapToJobCompanyDTO(job, company, reviews);
 		return jobCompanyDTO;
 	}
 
 	@Override
-	public JobCompanyDTO findJobById(Integer id) {
+	public JobCompanyReviewDTO findJobById(Integer id) {
 		Job job = jobRepo.findById(id).orElse(null);
 		if (job != null) {
-			RestTemplate restTemplate = new RestTemplate();
-			JobCompanyDTO jobCompanyDTO = convertToDTO(job, restTemplate);
+//			RestTemplate restTemplate = new RestTemplate();
+			JobCompanyReviewDTO jobCompanyDTO = convertToDTO(job, restTemplate);
 			return jobCompanyDTO;
 		}
 		return null;

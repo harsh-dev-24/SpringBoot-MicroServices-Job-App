@@ -1,18 +1,13 @@
 package com.harsh.jobms.dto;
 
-import com.harsh.jobms.external.Company;
-import com.harsh.jobms.model.Job;
+import java.util.List;
 
-public class JobCompanyDTO {
+import com.harsh.jobms.external.Company;
+import com.harsh.jobms.external.Review;
+
+public class JobCompanyReviewDTO {
 
 	private Integer id;
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
 	private String title;
 	private String description;
@@ -21,6 +16,27 @@ public class JobCompanyDTO {
 	private String location;
 	private String status;
 	private Company company;
+	private List<Review> reviews;
+	
+	
+
+	
+
+	public List<Review> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<Review> reviews) {
+		this.reviews = reviews;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getTitle() {
 		return title;

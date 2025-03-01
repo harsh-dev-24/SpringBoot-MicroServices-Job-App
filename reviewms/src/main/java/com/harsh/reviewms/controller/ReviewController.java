@@ -30,12 +30,10 @@ public class ReviewController {
 	}
 
 	@GetMapping
-	public ResponseEntity<Pair> findAllReviews(@RequestParam Integer companyId) {
+	public ResponseEntity findAllReviews(@RequestParam Integer companyId) {
 		List<Review> allReviews = reviewService.getAllReviews(companyId);
-		if (allReviews.size() == 0) {
-			return new ResponseEntity<Pair>(new Pair("success", "No reviews found!!"), HttpStatus.OK);
-		}
-		return new ResponseEntity<Pair>(new Pair("success", allReviews), HttpStatus.OK);
+		return new ResponseEntity<>(allReviews, HttpStatus.OK);
+
 	}
 
 	@GetMapping("/{reviewId}")

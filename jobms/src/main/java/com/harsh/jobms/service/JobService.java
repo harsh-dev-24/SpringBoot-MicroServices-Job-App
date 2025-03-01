@@ -2,14 +2,14 @@ package com.harsh.jobms.service;
 
 import java.util.List;
 
-import com.harsh.jobms.dto.JobCompanyDTO;
+import com.harsh.jobms.dto.JobCompanyReviewDTO;
 import com.harsh.jobms.model.Job;
 
 public interface JobService {
 
-	List<JobCompanyDTO> findAllJobs();
+	List<JobCompanyReviewDTO> findAllJobs();
 
-	JobCompanyDTO findJobById(Integer id);
+	JobCompanyReviewDTO findJobById(Integer id);
 
 	boolean createJob(Job job);
 

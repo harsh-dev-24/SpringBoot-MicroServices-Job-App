@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.harsh.jobms.dto.JobCompanyDTO;
+import com.harsh.jobms.dto.JobCompanyReviewDTO;
 import com.harsh.jobms.dto.Pair;
 import com.harsh.jobms.model.Job;
 import com.harsh.jobms.service.JobService;
@@ -44,7 +44,7 @@ public class JobController {
 
 	@GetMapping("/jobs")
 	public ResponseEntity<Pair> findAllJobs() {
-		List<JobCompanyDTO> allJobs = jobService.findAllJobs();
+		List<JobCompanyReviewDTO> allJobs = jobService.findAllJobs();
 		if (allJobs.size() == 0) {
 			return new ResponseEntity<Pair>(new Pair("success", "No jobs found!!"), HttpStatus.OK);
 		}
@@ -53,7 +53,7 @@ public class JobController {
 
 	@GetMapping("/jobs/id/{id}")
 	public ResponseEntity<Pair> findJobById(@PathVariable int id) {
-		JobCompanyDTO job = jobService.findJobById(id);
+		JobCompanyReviewDTO job = jobService.findJobById(id);
 		if (job == null) {
 			return new ResponseEntity<>(new Pair("fail", "Job not found !!"), HttpStatus.NOT_FOUND);
 
@@ -63,7 +63,7 @@ public class JobController {
 
 	@GetMapping("/jobs/find")
 	public ResponseEntity<Pair> findJobById2(@RequestParam(value = "id", required = true) String id) {
-		JobCompanyDTO job = jobService.findJobById(Integer.parseInt(id));
+		JobCompanyReviewDTO job = jobService.findJobById(Integer.parseInt(id));
 		if (job == null) {
 			return new ResponseEntity<>(new Pair("fail", "Job Id not found !!"), HttpStatus.NOT_FOUND);
 
