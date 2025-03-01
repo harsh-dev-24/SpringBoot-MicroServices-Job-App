@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.harsh.jobms.clients.CompanyClient;
@@ -16,6 +18,10 @@ import com.harsh.jobms.mapper.JobMapper;
 import com.harsh.jobms.model.Job;
 import com.harsh.jobms.repository.JobRepository;
 import com.harsh.jobms.service.JobService;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 
 //used open feign client for interservice communication
 @Service
@@ -58,10 +64,17 @@ public class JobServiceImpl2 implements JobService {
 
 	}
 
+	// Circuit Breaker implementation
+	@CircuitBreaker(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
 	@Override
 	public List<JobCompanyReviewDTO> findAllJobs() {
 		List<Job> jobs = jobRepo.findAll();
 		return jobs.stream().map(this::convertToDTO).collect(Collectors.toList());
+	}
+
+	public ResponseEntity<String> companyBreakerFallback() {
+		return ResponseEntity.status(HttpStatus.SC_SERVICE_UNAVAILABLE)
+				.body("Service is currently unavailable. Please try again later.");
 	}
 
 	// Implementing FeignClient to communicate with company service
@@ -72,6 +85,10 @@ public class JobServiceImpl2 implements JobService {
 		return jobCompanyReviewDTO;
 	}
 
+	// Retries mechanism implementation
+//	@Retry(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
+//	Ratelimiter mechanism implementation
+	@RateLimiter(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
 	@Override
 	public JobCompanyReviewDTO findJobById(Integer id) {
 		Job job = jobRepo.findById(id).orElse(null);
