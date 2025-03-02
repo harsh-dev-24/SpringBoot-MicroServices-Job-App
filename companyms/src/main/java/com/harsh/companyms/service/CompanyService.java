@@ -2,6 +2,7 @@ package com.harsh.companyms.service;
 
 import java.util.List;
 
+import com.harsh.companyms.dto.ReviewMessage;
 import com.harsh.companyms.model.Company;
 
 public interface CompanyService {
@@ -17,5 +18,7 @@ public interface CompanyService {
 	Company deleteCompanyById(int id);
 
 	boolean loadCompanies();
+
+	void updateCompanyRating(ReviewMessage reviewMessage);
 
 }

@@ -1,21 +1,28 @@
 package com.harsh.companyms.service.impl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.harsh.companyms.clients.ReviewClient;
+import com.harsh.companyms.dto.ReviewMessage;
 import com.harsh.companyms.model.Company;
 import com.harsh.companyms.repository.CompanyRepository;
 import com.harsh.companyms.service.CompanyService;
+
+import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
 	private CompanyRepository companyRepo;
+	private ReviewClient reviewClient;
 
-	public CompanyServiceImpl(CompanyRepository companyRepository) {
+	public CompanyServiceImpl(CompanyRepository companyRepository, ReviewClient reviewClient) {
 		this.companyRepo = companyRepository;
+		this.reviewClient = reviewClient;
 	}
 
 	private List<Company> listOfCompanies = new ArrayList<Company>(
@@ -78,6 +85,16 @@ public class CompanyServiceImpl implements CompanyService {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void updateCompanyRating(ReviewMessage reviewMessage) {
+		System.out.println(reviewMessage);
+		Company company = companyRepo.findById(reviewMessage.getCompanyId()).orElseThrow(
+				() -> new NotFoundException("Company not found with ID :: " + reviewMessage.getCompanyId()));
+		double averageRatingForCompany = reviewClient.getAverageRatingForCompany(reviewMessage.getCompanyId());
+		company.setAverageRating(new BigDecimal(averageRatingForCompany));
+		companyRepo.save(company);
 	}
 
 }

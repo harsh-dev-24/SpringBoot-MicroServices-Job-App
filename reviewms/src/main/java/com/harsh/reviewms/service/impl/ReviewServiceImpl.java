@@ -81,4 +81,11 @@ public class ReviewServiceImpl implements ReviewService {
 		return null;
 	}
 
+	@Override
+	public Double getAverageRating(Integer companyId) {
+		List<Review> allReviews = this.getAllReviews(companyId);
+		Double rating = allReviews.stream().mapToDouble(Review::getRating).average().orElse(0);
+		return rating;
+	}
+
 }

@@ -16,4 +16,6 @@ public interface ReviewService {
 
 	Review deleteReview(int reviewId);
 
+	Double getAverageRating(Integer companyId);
+
 }

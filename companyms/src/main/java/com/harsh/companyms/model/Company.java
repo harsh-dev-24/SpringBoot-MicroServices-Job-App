@@ -1,5 +1,8 @@
 package com.harsh.companyms.model;
 
+import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,6 +16,8 @@ public class Company {
 	private Integer id;
 	private String name;
 	private String description;
+	@Column(precision = 2, scale = 1) // Max 2 digits, 1 after decimal
+	private BigDecimal averageRating;
 //	private List<>
 
 	/*
@@ -61,6 +66,14 @@ public class Company {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public BigDecimal getAverageRating() {
+		return averageRating;
+	}
+
+	public void setAverageRating(BigDecimal averageRating) {
+		this.averageRating = averageRating;
 	}
 
 	@Override

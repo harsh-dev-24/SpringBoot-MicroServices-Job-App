@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.harsh.reviewms.dto.Pair;
+import com.harsh.reviewms.messaging.ReviewMessageProducer;
 import com.harsh.reviewms.model.Review;
 import com.harsh.reviewms.service.ReviewService;
 
@@ -25,8 +26,11 @@ public class ReviewController {
 
 	private ReviewService reviewService;
 
-	public ReviewController(ReviewService reviewService) {
+	private ReviewMessageProducer reviewMessageProducer;
+
+	public ReviewController(ReviewService reviewService, ReviewMessageProducer reviewMessageProducer) {
 		this.reviewService = reviewService;
+		this.reviewMessageProducer = reviewMessageProducer;
 	}
 
 	@GetMapping
@@ -49,6 +53,7 @@ public class ReviewController {
 	public ResponseEntity<Pair> addReview(@RequestBody Review review, @RequestParam int companyId) {
 		boolean reviewCompany = reviewService.addReviewForCompany(review, companyId);
 		if (reviewCompany) {
+			reviewMessageProducer.sendMessage(review);
 			return new ResponseEntity<Pair>(new Pair("success", "Review added Successfully!!"), HttpStatus.CREATED);
 		}
 		return new ResponseEntity<Pair>(new Pair("fail", "Something went wrong !"), HttpStatus.BAD_REQUEST);
@@ -71,6 +76,12 @@ public class ReviewController {
 			return new ResponseEntity<Pair>(new Pair("fail", "Something went wrong !"), HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<Pair>(new Pair("success", "Review deleted !!"), HttpStatus.OK);
+	}
+
+	@GetMapping("/averageRating")
+	public Double getAverageRating(@RequestParam Integer companyId) {
+		Double avgRating = reviewService.getAverageRating(companyId);
+		return avgRating;
 	}
 
 }
